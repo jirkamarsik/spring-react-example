@@ -52,7 +52,12 @@
 			<version>1.7.3</version>
 			<scope>test</scope>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.graalvm</groupId>
+            <artifactId>graal-sdk</artifactId>
+            <version>c93bfd1e637389fbeecda5377dba6db5102fe01b-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 
 	<build>
 		<plugins>

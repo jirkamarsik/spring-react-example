@@ -1,9 +1,14 @@
 package com.winterbe.react;
 
-import jdk.nashorn.api.scripting.NashornScriptEngine;
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.PolyglotException;
+import org.graalvm.polyglot.Source;
 
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -11,25 +16,28 @@ import java.util.List;
 
 public class React {
 
-    private ThreadLocal<NashornScriptEngine> engineHolder = new ThreadLocal<NashornScriptEngine>() {
+    private ThreadLocal<Context> engineHolder = new ThreadLocal<Context>() {
         @Override
-        protected NashornScriptEngine initialValue() {
-            NashornScriptEngine nashornScriptEngine = (NashornScriptEngine) new ScriptEngineManager().getEngineByName("nashorn");
+        protected Context initialValue() {
+            Context context = Context.newBuilder("js")
+                    .option("inspect", "4242")
+                    .option("inspect.Path", "debugging-react")
+                    .build();
             try {
-                nashornScriptEngine.eval(read("static/nashorn-polyfill.js"));
-                nashornScriptEngine.eval(read("static/vendor/react.js"));
-                nashornScriptEngine.eval(read("static/vendor/showdown.min.js"));
-                nashornScriptEngine.eval(read("static/commentBox.js"));
-            } catch (ScriptException e) {
+                for (String path : new String[]{"static/nashorn-polyfill.js", "static/vendor/react.js", "static/vendor/showdown.min.js", "static/commentBox.js"}) {
+                    Source src = Source.newBuilder("js", read(path), path).build();
+                    context.eval(src);
+                }
+            } catch (PolyglotException | IOException e) {
                 throw new RuntimeException(e);
             }
-            return nashornScriptEngine;
+            return context;
         }
     };
 
     public  String renderCommentBox(List<Comment> comments) {
         try {
-            Object html = engineHolder.get().invokeFunction("renderServer", comments);
+            Object html = engineHolder.get().eval("js", "renderServer").execute(comments);
             return String.valueOf(html);
         }
         catch (Exception e) {
