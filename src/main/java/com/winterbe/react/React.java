@@ -1,7 +1,7 @@
 package com.winterbe.react;
 
-import jdk.nashorn.api.scripting.NashornScriptEngine;
-
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.io.InputStream;
@@ -11,25 +11,25 @@ import java.util.List;
 
 public class React {
 
-    private ThreadLocal<NashornScriptEngine> engineHolder = new ThreadLocal<NashornScriptEngine>() {
+    private ThreadLocal<ScriptEngine> engineHolder = new ThreadLocal<ScriptEngine>() {
         @Override
-        protected NashornScriptEngine initialValue() {
-            NashornScriptEngine nashornScriptEngine = (NashornScriptEngine) new ScriptEngineManager().getEngineByName("nashorn");
+        protected ScriptEngine initialValue() {
+            ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("Graal.js");
             try {
-                nashornScriptEngine.eval(read("static/nashorn-polyfill.js"));
-                nashornScriptEngine.eval(read("static/vendor/react.js"));
-                nashornScriptEngine.eval(read("static/vendor/showdown.min.js"));
-                nashornScriptEngine.eval(read("static/commentBox.js"));
+                scriptEngine.eval(read("static/nashorn-polyfill.js"));
+                scriptEngine.eval(read("static/vendor/react.js"));
+                scriptEngine.eval(read("static/vendor/showdown.min.js"));
+                scriptEngine.eval(read("static/commentBox.js"));
             } catch (ScriptException e) {
                 throw new RuntimeException(e);
             }
-            return nashornScriptEngine;
+            return scriptEngine;
         }
     };
 
     public  String renderCommentBox(List<Comment> comments) {
         try {
-            Object html = engineHolder.get().invokeFunction("renderServer", comments);
+            Object html = ((Invocable)engineHolder.get()).invokeFunction("renderServer", comments);
             return String.valueOf(html);
         }
         catch (Exception e) {
