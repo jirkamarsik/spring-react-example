@@ -63,7 +63,7 @@
 					<dependency>
 						<groupId>org.springframework</groupId>
 						<artifactId>springloaded</artifactId>
-						<version>1.2.4.RELEASE</version>
+						<version>1.2.9.BUILD-SNAPSHOT</version>
 					</dependency>
 				</dependencies>
 				<configuration>
