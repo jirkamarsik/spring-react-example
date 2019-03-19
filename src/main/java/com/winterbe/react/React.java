@@ -16,7 +16,6 @@ public class React {
         protected ScriptEngine initialValue() {
             ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("Graal.js");
             try {
-                scriptEngine.eval(read("static/nashorn-polyfill.js"));
                 scriptEngine.eval(read("static/vendor/react.js"));
                 scriptEngine.eval(read("static/vendor/showdown.min.js"));
                 scriptEngine.eval(read("static/commentBox.js"));
